@@ -3,25 +3,41 @@
 ## 效果预览：
 ![avatar](https://raw.githubusercontent.com/youshandefeiyang/webcdn/main/sub-web-modify.GIF)
 ### 使用方法：
-建议使用Docker一键部署:
-```
-docker run -d --restart always -p 8090:80 --name sub-web-modify youshandefeiyang/sub-web-modify
-```
-或使用docker compose
+
+推荐使用 Docker 进行本地构建与部署。请确保您的服务器已安装 Docker 及 Docker Compose 插件。
+
+**方式一：使用 Docker Compose（推荐）**
+
+首先将本项目克隆到本地并进入项目根目录。新建或修改目录下的 `docker-compose.yml` 文件，内容如下：
+
 ```yaml
 name: sub-web-modify
 services:
     sub-web-modify:
+        build: .
         restart: always
         privileged: false
         ports:
             - 8090:80
         container_name: sub-web-modify
-        image: youshandefeiyang/sub-web-modify
 ```
-运行docker compose: `docker compose up -d`
+配置完成后，在项目根目录下执行以下命令进行镜像构建并在后台启动容器：
+```
+docker compose up -d --build
+```
+方式二：使用原生 Docker 命令
 
-访问地址举例:
+如果您习惯使用原生的 Docker 命令，同样在克隆并进入项目根目录后，首先执行镜像构建命令：
 ```
-http://192.168.10.1:8090/?backend=https://url.v1.mk
+docker build -t sub-web-modify:local .
+```
+等待镜像构建完成后，运行以下命令启动容器：
+```
+docker run -d --restart always -p 8090:80 --name sub-web-modify sub-web-modify:local
+```
+访问测试：
+
+部署完成后，您可以通过浏览器访问相应的端口（举例为 8090），如果需要指定后端，可以在 URL 后面附带参数：
+```
+http://你的服务器IP:8090/?backend=[https://url.v1.mk](https://url.v1.mk)
 ```
