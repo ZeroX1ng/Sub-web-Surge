@@ -240,6 +240,14 @@
                 </el-button>
                 <el-button
                     style="width: 120px"
+                    type="danger"
+                    @click="resetConfig"
+                    icon="el-icon-refresh"
+                    :loading="loading2"
+                >重置配置
+                </el-button>
+                <el-button
+                    style="width: 120px"
                     type="primary"
                     @click="dialogLoadConfigVisible = true"
                     icon="el-icon-copy-document"
@@ -927,12 +935,22 @@ export default {
       sampleConfig: remoteConfigSample
     };
   },
+  watch: {
+    form: {
+      deep: true, // 开启深度监听，检测对象内部属性的变化
+      handler(newValue) {
+        // 当表单数据发生变化时，自动将其序列化并保存到 localStorage
+        window.localStorage.setItem('subconverter_form_config', JSON.stringify(newValue));
+      }
+    }
+  },
   created() {
     document.title = "在线订阅转换工具";
     this.isPC = this.$getOS().isPc;
   },
   mounted() {
-    this.form.clientType = "clash";
+    this.loadLocalConfig(); // 新增：挂载时第一时间加载本地配置
+    this.form.clientType = this.form.clientType || "clash"; // 防止覆盖为空
     this.getBackendVersion();
     this.anhei();
     let lightMedia = window.matchMedia('(prefers-color-scheme: light)');
@@ -961,6 +979,17 @@ export default {
         }
       }
       return "";
+    },
+    resetConfig() {
+      this.$confirm('确定要清除本地记忆的配置并恢复默认状态吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        window.localStorage.removeItem('subconverter_form_config');
+        // 刷新页面重新加载默认 data
+        window.location.reload(); 
+      }).catch(() => {});
     },
     anhei() {
       const getLocalTheme = window.localStorage.getItem("localTheme");
@@ -1364,7 +1393,28 @@ export default {
           .catch(() => {
             this.$message.error("请求SubConverter版本号返回数据失败，该后端不可用！");
           });
-    }
+    },
+    // 新增：加载本地存储的表单配置
+    loadLocalConfig() {
+      const localConfig = window.localStorage.getItem('subconverter_form_config');
+      if (localConfig) {
+        try {
+          const parsed = JSON.parse(localConfig);
+          // 使用 Object.assign 深度合并，防止旧版本缓存缺少新字段导致报错
+          this.form = Object.assign({}, this.form, parsed);
+          
+          // 确保 URL 中携带的 backend 参数优先级最高
+          const urlBackend = this.getUrlParam();
+          if (urlBackend !== "") {
+            this.form.customBackend = urlBackend;
+          }
+        } catch (e) {
+          console.error("解析本地配置失败，已恢复默认值", e);
+          // 解析失败时清除错误的缓存
+          window.localStorage.removeItem('subconverter_form_config');
+        }
+      }
+    },
   }
 };
 </script>
