@@ -937,10 +937,14 @@ export default {
   },
   watch: {
     form: {
-      deep: true, // 开启深度监听，检测对象内部属性的变化
+      deep: true,
       handler(newValue) {
-        // 当表单数据发生变化时，自动将其序列化并保存到 localStorage
-        window.localStorage.setItem('subconverter_form_config', JSON.stringify(newValue));
+        if (this.saveTimer) {
+          clearTimeout(this.saveTimer);
+        }
+        this.saveTimer = setTimeout(() => {
+          window.localStorage.setItem('subconverter_form_config', JSON.stringify(newValue));
+        }, 500); // 延迟 500 毫秒执行，避免高频 I/O 操作
       }
     }
   },
@@ -995,33 +999,30 @@ export default {
       const getLocalTheme = window.localStorage.getItem("localTheme");
       const lightMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)');
       const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+
       if (getLocalTheme) {
-        document.getElementsByTagName('body')[0].className = getLocalTheme;
-      } //读取localstorage，优先级最高！
-      else if (getLocalTheme == null || getLocalTheme == "undefined" || getLocalTheme == "") {
-        if (new Date().getHours() >= 19 || new Date().getHours() < 7) {
-          document.getElementsByTagName('body')[0].setAttribute('class', 'dark-mode');
+        document.body.className = getLocalTheme;
+      } else {
+        const currentHour = new Date().getHours();
+        if (currentHour >= 19 || currentHour < 7) {
+          document.body.className = 'dark-mode';
         } else {
-          document.getElementsByTagName('body')[0].setAttribute('class', 'light-mode');
-        } //根据当前时间来判断，用来对付QQ等不支持媒体变量查询的浏览器
+          document.body.className = 'light-mode';
+        }
+        
         if (lightMode && lightMode.matches) {
-          document.getElementsByTagName('body')[0].setAttribute('class', 'light-mode');
+          document.body.className = 'light-mode';
         }
         if (darkMode && darkMode.matches) {
-          document.getElementsByTagName('body')[0].setAttribute('class', 'dark-mode');
-        } //根据窗口主题来判断当前主题！
+          document.body.className = 'dark-mode';
+        }
       }
     },
     change() {
-      var zhuti = document.getElementsByTagName('body')[0].className;
-      if (zhuti === 'light-mode') {
-        document.getElementsByTagName('body')[0].setAttribute('class', 'dark-mode');
-        window.localStorage.setItem('localTheme', 'dark-mode');
-      }
-      if (zhuti === 'dark-mode') {
-        document.getElementsByTagName('body')[0].setAttribute('class', 'light-mode');
-        window.localStorage.setItem('localTheme', 'light-mode');
-      }
+      const currentTheme = document.body.className;
+      const newTheme = currentTheme === 'light-mode' ? 'dark-mode' : 'light-mode';
+      document.body.className = newTheme;
+      window.localStorage.setItem('localTheme', newTheme);
     },
     onCopy() {
       this.$message.success("已复制");
