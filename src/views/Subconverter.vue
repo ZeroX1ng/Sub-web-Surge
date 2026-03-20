@@ -1417,17 +1417,31 @@ export default {
       if (localConfig) {
         try {
           const parsed = JSON.parse(localConfig);
-          // 使用 Object.assign 深度合并，防止旧版本缓存缺少新字段导致报错
-          this.form = Object.assign({}, this.form, parsed);
           
-          // 确保 URL 中携带的 backend 参数优先级最高
+          // 对于简单的深层结构，可以手写合并，或者引入 lodash/merge
+          // 这里给出一个轻量级的手动安全赋值方式：
+          Object.keys(parsed).forEach(key => {
+            if (typeof parsed[key] === 'object' && parsed[key] !== null && !Array.isArray(parsed[key])) {
+              this.form[key] = { ...this.form[key], ...parsed[key] };
+            } else {
+              this.form[key] = parsed[key];
+            }
+          });
+          // 针对更深层的 tpl 进行二次兜底
+          if (parsed.tpl) {
+            this.form.tpl = {
+              surge: { ...this.form.tpl.surge, ...(parsed.tpl.surge || {}) },
+              clash: { ...this.form.tpl.clash, ...(parsed.tpl.clash || {}) },
+              singbox: { ...this.form.tpl.singbox, ...(parsed.tpl.singbox || {}) }
+            };
+          }
+    
           const urlBackend = this.getUrlParam();
           if (urlBackend !== "") {
             this.form.customBackend = urlBackend;
           }
         } catch (e) {
           console.error("解析本地配置失败，已恢复默认值", e);
-          // 解析失败时清除错误的缓存
           window.localStorage.removeItem('subconverter_form_config');
         }
       }
