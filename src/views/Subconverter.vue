@@ -959,15 +959,23 @@ export default {
     this.anhei();
     let lightMedia = window.matchMedia('(prefers-color-scheme: light)');
     let darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
-    let callback = (e) => {
+    this.themeCallback = (e) => {
       if (e.matches) {
         this.anhei();
       }
     };
     if (typeof darkMedia.addEventListener === 'function' || typeof lightMedia.addEventListener === 'function') {
-      lightMedia.addEventListener('change', callback);
-      darkMedia.addEventListener('change', callback);
-    } //监听系统主题，自动切换！
+      lightMedia.addEventListener('change', this.themeCallback);
+      darkMedia.addEventListener('change', this.themeCallback);
+    } //监听系统主题，自动切换
+  },
+  beforeDestroy() {
+    let lightMedia = window.matchMedia('(prefers-color-scheme: light)');
+    let darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
+    if (typeof darkMedia.removeEventListener === 'function' || typeof lightMedia.removeEventListener === 'function') {
+      lightMedia.removeEventListener('change', this.themeCallback);
+      darkMedia.removeEventListener('change', this.themeCallback);
+    }
   },
   methods: {
     selectChanged() {
