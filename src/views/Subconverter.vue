@@ -435,7 +435,7 @@ const defaultBackend = process.env.VUE_APP_SUBCONVERTER_DEFAULT_BACKEND
 const shortUrlBackend = process.env.VUE_APP_MYURLS_DEFAULT_BACKEND + '/short'
 const configUploadBackend = process.env.VUE_APP_CONFIG_UPLOAD_BACKEND + '/sub.php'
 const downld = 'http://' + window.location.host + '/download.html'
-import Announcement from '@/components/Announcement.vue';
+import Announcement from '@/components/SvgIcon/Announcement.vue';
 export default {
   components: {
     Announcement // 增加：注册组件
