@@ -42,7 +42,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # 默认推送到 GitHub Container Registry（ghcr.io），无需额外配置密钥
       - name: Log in to GHCR
