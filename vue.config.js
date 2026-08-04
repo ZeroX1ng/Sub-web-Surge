@@ -5,22 +5,20 @@ function resolve(dir) {
 }
 
 module.exports = {
+  publicPath: process.env.BASE_URL || '/',
+  productionSourceMap: false,
+
   css: {
     loaderOptions: {
-      less: {
-        lessOptions: {
-          javascriptEnabled: true
-        }
+      sass: {
+        api: 'modern'
       }
     }
   },
 
-  chainWebpack: config => {
+  chainWebpack: (config) => {
     // set svg-sprite-loader
-    config.module
-      .rule('svg')
-      .exclude.add(resolve('src/icons'))
-      .end()
+    config.module.rule('svg').exclude.add(resolve('src/icons')).end()
     config.module
       .rule('icons')
       .test(/\.svg$/)
@@ -33,4 +31,4 @@ module.exports = {
       })
       .end()
   }
-};
+}

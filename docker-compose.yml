@@ -1,0 +1,9 @@
+name: sub-web-surge
+services:
+    sub-web-surge:
+        build: .
+        restart: always
+        privileged: false
+        ports:
+            - 8090:80
+        container_name: sub-web-surge

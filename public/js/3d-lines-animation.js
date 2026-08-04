@@ -1,3 +1,6 @@
+if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  // 系统开启“减弱动态效果”时，跳过 3D 背景粒子动画，降低低性能设备的负担
+} else {
 var mouseX = 0, mouseY = 0,
 
             windowHalfX = window.innerWidth / 2,
@@ -158,3 +161,4 @@ var mouseX = 0, mouseY = 0,
                 renderer.render( scene, camera );
 
             }
+}
