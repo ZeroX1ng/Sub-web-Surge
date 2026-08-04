@@ -42,7 +42,7 @@
     "@babel/eslint-parser": "^7.24.1",
     "jest": "^27.1.0",
     "babel-jest": "^27.1.0",
-    "@babel/core": "^7.12.16"
+    "@babel/core": "^7.29.7"
   },
   "lint-staged": {
     "src/**/*.{js,vue}": "vue-cli-service lint --fix",
