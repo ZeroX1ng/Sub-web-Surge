@@ -3,11 +3,12 @@ name: Docker Image CI
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   quality-gate:
@@ -25,18 +26,26 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Verify Sass compiler
+        run: |
+          yarn node -e "const sass = require('sass'); console.log(sass.info); sass.compileString('.sass-smoke { color: red; }')"
+
       - name: Lint
-        run: yarn lint
+        run: yarn lint --no-fix
 
       - name: Unit tests
-        run: yarn test
+        run: yarn test --runInBand
 
       - name: Build
         run: yarn build
 
   build-and-push:
+    if: github.event_name != 'pull_request'
     needs: quality-gate
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
